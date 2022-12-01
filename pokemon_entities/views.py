@@ -69,51 +69,35 @@ def show_pokemon(request, pokemon_id):
     pokemons_one_page = {}
     pokemon = Pokemon.objects.get(id=pokemon_id)
 
-    pokemons_one_page.update({
+    pokemons_one_page={
         'pokemon_id': pokemon.id,
         'img_url': request.build_absolute_uri(f'http://127.0.0.1:8000/media/{pokemon.image}'),
         'title_ru': pokemon.title,
         'title_jp': pokemon.title_jp,
         'title_en': pokemon.title_en,
         'description': pokemon.description,
-        })
+        }
 
-    if pokemon.previous_evolution and pokemon.next_evolutions.first():
-        pokemons_one_page.update({
-            'previous_evolution': {
-                'title_ru': pokemon.previous_evolution.title,
+    next_evo = pokemon.next_evolutions.first()
+    if next_evo:
+        pokemons_one_page['next_evolution']={
+            'title_ru': pokemon.next_evolutions.first().title,
+            'pokemon_id': pokemon.next_evolutions.first().id,
+            'img_url': request.build_absolute_uri(f"http://127.0.0.1:8000/media/{pokemon.next_evolutions.first().image}")
+            }
+
+    prev_evo = pokemon.previous_evolution
+    if prev_evo:
+        pokemons_one_page['previous_evolution']={
+            'title_ru': pokemon.previous_evolution.title,
                 'pokemon_id': pokemon.previous_evolution.id,
-                'img_url': request.build_absolute_uri(f"http://127.0.0.1:8000/media/{pokemon.previous_evolution.image}")},
-            'next_evolution': {
-                'title_ru': pokemon.next_evolutions.first().title,
-                'pokemon_id': pokemon.next_evolutions.first().id,
-                'img_url': request.build_absolute_uri(f"http://127.0.0.1:8000/media/{pokemon.next_evolutions.first().image}")}
-        })
-
-    elif pokemon.previous_evolution:
-        pokemons_one_page.update({
-            'previous_evolution': {
-                'title_ru': pokemon.previous_evolution.title,
-                'pokemon_id': pokemon.previous_evolution.id,
-                'img_url': request.build_absolute_uri(f"http://127.0.0.1:8000/media/{pokemon.previous_evolution.image}")},
-        })
-
-    elif pokemon.next_evolutions.first():
-        pokemons_one_page.update({
-            'next_evolution': {
-                'title_ru': pokemon.next_evolutions.first().title,
-                'pokemon_id': pokemon.next_evolutions.first().id,
-                'img_url': request.build_absolute_uri(f"http://127.0.0.1:8000/media/{pokemon.next_evolutions.first().image}")}
-        })
+                'img_url': request.build_absolute_uri(f"http://127.0.0.1:8000/media/{pokemon.previous_evolution.image}")
+            }
 
     if pokemon.image:
-        pokemons_one_page.update({
-            'img_url': request.build_absolute_uri(f'http://127.0.0.1:8000/media/{pokemon.image}')
-        })
+        pokemons_one_page['img_url'] = request.build_absolute_uri(f'http://127.0.0.1:8000/media/{pokemon.image}')
     else:
-        pokemons_one_page.update({
-            'img_url': DEFAULT_IMAGE_URL
-        })
+        pokemons_one_page['img_url'] = DEFAULT_IMAGE_URL
 
     localtime=dt.now()
     pokemons = pokemon.entities.filter(appeared_at__lt=localtime, disappeared_at__gt=localtime)
