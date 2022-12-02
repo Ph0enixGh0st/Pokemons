@@ -12,7 +12,7 @@ class Pokemon(models.Model):
         null=True, blank=True, related_name='next_evolutions', verbose_name='Из кого эволюционировал')
 
     def __str__(self):
-        return str(self.title)
+        return self.title
 
 
 class PokemonEntity(models.Model):
