@@ -31,11 +31,11 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 def show_all_pokemons(request):
     localtime=dt.now()
-    pokemons = PokemonEntity.objects.filter(appeared_at__lt=localtime, disappeared_at__gt=localtime).select_related('pokemon')
+    pokemons_active = PokemonEntity.objects.filter(appeared_at__lt=localtime, disappeared_at__gt=localtime).select_related('pokemon')
 
     pokemons_on_page = []
-    pokemon_types = Pokemon.objects.all().select_related('previous_evolution')
-    for pokemon in pokemon_types:
+    pokemons_all = Pokemon.objects.all()
+    for pokemon in pokemons_all:
         if pokemon.image:
             pokemons_on_page.append({
                 'pokemon_id': pokemon.id,
@@ -50,7 +50,7 @@ def show_all_pokemons(request):
             })
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    for pokemon in pokemons:
+    for pokemon in pokemons_active:
         pokemon_found = get_object_or_404(Pokemon, id=pokemon.pokemon_id)
         add_pokemon(
         folium_map, pokemon.lat,
